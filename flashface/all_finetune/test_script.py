@@ -276,6 +276,8 @@ def generate(
 
     imgs = autoencoder.decode(z0 / cfg.ae_scale)
     del unet.share_cache['ori_similarity']
+    torch.cuda.empty_cache()
+    unet.share_cache.clear()
     # output
     imgs = (imgs.permute(0, 2, 3, 1) * 127.5 + 127.5).cpu().numpy().clip(
         0, 255).astype(np.uint8)
