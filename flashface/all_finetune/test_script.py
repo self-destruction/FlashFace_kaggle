@@ -11,7 +11,7 @@ import torch
 import torch.cuda.amp as amp
 import torch.nn as nn
 import torchvision.transforms as T
-from myconfig import cfg
+from config import cfg
 from PIL import Image, ImageDraw
 
 from models import sd_v1_ref_unet
