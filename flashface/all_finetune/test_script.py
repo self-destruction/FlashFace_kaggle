@@ -1,8 +1,8 @@
 import sys
+import os
 os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 sys.path.insert(0, package_dir)
 
-import os
 import copy
 import random
 import numpy as np
