@@ -189,8 +189,7 @@ def generate(
     print('final neg_prompt: ', neg_prompt)
 
     if need_detect:
-        with clear_cache_and_gpu():
-            reference_faces = detect_face(reference_faces)
+        reference_faces = detect_face(reference_faces)
 
         # for i, ref_img in enumerate(reference_faces):
         #     ref_img.save(f'./{i + 1}.png')
@@ -255,39 +254,41 @@ def generate(
         for u in faces.split(cfg.ae_batch_size)
     ])
     #  ref_z0 = ref_z0[None].repeat(num_sample, 1,1,1,1).flatten(0,1)
-    unet.share_cache['num_pairs'] = 4
-    unet.share_cache['ref'] = ref_z0
-    unet.share_cache['similarity'] = torch.tensor(lamda_feat).cuda()
-    unet.share_cache['ori_similarity'] = torch.tensor(lamda_feat).cuda()
-    unet.share_cache['lamda_feat_before_ref_guidence'] = torch.tensor(
-        lamda_feat_before_ref_guidence).cuda()
-    unet.share_cache['ref_context'] = single_null_context.repeat(
-        len(ref_z0), 1, 1)
-    unet.share_cache['masks'] = empty_mask
-    unet.share_cache['classifier'] = face_guidence
-    unet.share_cache['step_to_launch_face_guidence'] = step_to_launch_face_guidence
-
-    diffusion.classifier = face_guidence
-
-    # sample
-    with amp.autocast(dtype=cfg.flash_dtype), torch.no_grad():
-        z0 = diffusion.sample(solver=solver,
-                              noise=torch.empty(num_sample, 4,
-                                                SIZE // 8,
-                                                SIZE // 8,
-                                                device=gpu).normal_(),
-                              model=unet,
-                              model_kwargs=[c, nc],
-                              steps=steps,
-                              guide_scale=text_control_scale,
-                              guide_rescale=0.5,
-                              show_progress=True,
-                              discretization=cfg.discretization)
-
-    imgs = autoencoder.decode(z0 / cfg.ae_scale)
+    with clear_cache_and_gpu():
+        unet.share_cache['num_pairs'] = 4
+        unet.share_cache['ref'] = ref_z0
+        unet.share_cache['similarity'] = torch.tensor(lamda_feat).cuda()
+        unet.share_cache['ori_similarity'] = torch.tensor(lamda_feat).cuda()
+        unet.share_cache['lamda_feat_before_ref_guidence'] = torch.tensor(
+            lamda_feat_before_ref_guidence).cuda()
+        unet.share_cache['ref_context'] = single_null_context.repeat(
+            len(ref_z0), 1, 1)
+        unet.share_cache['masks'] = empty_mask
+        unet.share_cache['classifier'] = face_guidence
+        unet.share_cache['step_to_launch_face_guidence'] = step_to_launch_face_guidence
+    
+        diffusion.classifier = face_guidence
+    
+        # sample
+        with amp.autocast(dtype=cfg.flash_dtype), torch.no_grad():
+            z0 = diffusion.sample(solver=solver,
+                                  noise=torch.empty(num_sample, 4,
+                                                    SIZE // 8,
+                                                    SIZE // 8,
+                                                    device=gpu).normal_(),
+                                  model=unet,
+                                  model_kwargs=[c, nc],
+                                  steps=steps,
+                                  guide_scale=text_control_scale,
+                                  guide_rescale=0.5,
+                                  show_progress=True,
+                                  discretization=cfg.discretization)
+    
+        imgs = autoencoder.decode(z0 / cfg.ae_scale)
     del unet.share_cache['ori_similarity']
     torch.cuda.empty_cache()
     unet.share_cache.clear()
+    del unet, clip, autoencoder, diffusion
     # output
     imgs = (imgs.permute(0, 2, 3, 1) * 127.5 + 127.5).cpu().numpy().clip(
         0, 255).astype(np.uint8)
