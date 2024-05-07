@@ -7,6 +7,8 @@ import copy
 import random
 import numpy as np
 
+from contextlib import contextmanager
+
 import torch
 import torch.cuda.amp as amp
 import torch.nn as nn
@@ -46,6 +48,13 @@ retinaface_transforms = T.Compose([PadToSquare(size=640), T.ToTensor()])
 
 rf = retinaface(pretrained=True, device=gpu).eval().requires_grad_(False)
 
+@contextmanager
+def clear_cache_and_gpu():
+    try:
+        yield
+    finally:
+        unet.share_cache.clear()
+        torch.cuda.empty_cache()
 
 def detect_face(imgs=None):
     # read images
@@ -180,7 +189,8 @@ def generate(
     print('final neg_prompt: ', neg_prompt)
 
     if need_detect:
-        reference_faces = detect_face(reference_faces)
+        with clear_cache_and_gpu():
+            reference_faces = detect_face(reference_faces)
 
         # for i, ref_img in enumerate(reference_faces):
         #     ref_img.save(f'./{i + 1}.png')
