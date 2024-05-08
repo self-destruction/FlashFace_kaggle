@@ -39,7 +39,6 @@ parser.add_argument("--text_control_scale", type=float, default=7.5)
 parser.add_argument("--seed", type=int, default=-1)
 args = parser.parse_args()
 print(args)
-use_llava = not args.no_llava
 
 face_img_names = [args.face_img_1, args.face_img_2, args.face_img_3, args.face_img_4]
 # Убедитесь, что в списке есть хотя бы одно изображение
