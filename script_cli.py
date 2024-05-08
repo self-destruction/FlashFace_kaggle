@@ -21,12 +21,8 @@ parser.add_argument("--face_img_2", type=str, default='')
 parser.add_argument("--face_img_3", type=str, default='')
 parser.add_argument("--face_img_4", type=str, default='')
 parser.add_argument("--need_detect", action='store_true', default=True)
-parser.add_argument("--a_prompt", type=str,
-                    default='best quality, masterpiece, ultra-detailed, UHD 4K, photographic')
-parser.add_argument("--n_prompt", type=str,
-                    default='blurry, ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, '
-                            'out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, '
-                            'signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face')
+parser.add_argument("--a_prompt", type=str, default='')
+parser.add_argument("--n_prompt", type=str, default='')
 parser.add_argument("--batch_size", type=int, default=1)
 parser.add_argument("--face_bbox_0", type=float, default=0.0)
 parser.add_argument("--face_bbox_1", type=float, default=0.0)
