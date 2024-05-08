@@ -53,7 +53,6 @@ def clear_cache_and_gpu():
     try:
         yield
     finally:
-        unet.share_cache.clear()
         torch.cuda.empty_cache()
 
 def detect_face(imgs=None):
