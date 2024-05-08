@@ -9,6 +9,7 @@ def clear_cache_and_gpu():
     try:
         yield
     finally:
+        import torch
         torch.cuda.empty_cache()
 
 # hyparams here
