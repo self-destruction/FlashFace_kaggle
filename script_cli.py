@@ -71,4 +71,4 @@ with clear_cache_and_gpu():
 # show the generated images
 print('generated!')
 for i, img in enumerate(imgs):
-    img.save(f'{args.save_dir}/{args..save_file_name}_{i}.png')
+    img.save(f'{args.save_dir}/{args.save_file_name}_{i}.png')
