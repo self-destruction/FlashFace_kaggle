@@ -105,40 +105,7 @@ def detect_face(imgs=None):
     return face_imgs
 
 
-if not DEBUG_VIEW and not SKEP_LOAD:
-    clip_tokenizer = data.CLIPTokenizer(padding='eos')
-    clip = getattr(models, cfg.clip_model)(
-        pretrained=True).eval().requires_grad_(False).textual.to(gpu)
-    autoencoder = sd_v1_vae(
-        pretrained=True).eval().requires_grad_(False).to(gpu)
 
-    unet = sd_v1_ref_unet(pretrained=True,
-                          version='sd-v1-5_nonema',
-                          enable_encoder=enable_encoder).to(gpu)
-
-    unet.replace_input_conv()
-    unet = unet.eval().requires_grad_(False).to(gpu)
-    unet.share_cache['num_pairs'] = cfg.num_pairs
-
-
-    if LOAD_FLAG:
-        model_weight = torch.load(weight_path, map_location="cpu")
-        msg = unet.load_state_dict(model_weight, strict=True)
-        print(msg)
-
-    # diffusion
-    sigmas = ops.noise_schedule(schedule=cfg.schedule,
-                                n=cfg.num_timesteps,
-                                beta_min=cfg.scale_min,
-                                beta_max=cfg.scale_max)
-    diffusion = ContextGaussianDiffusion(sigmas=sigmas,
-                                         prediction_type=cfg.prediction_type)
-    diffusion.num_pairs = cfg.num_pairs
-    print("model initialized")
-
-face_transforms = Compose(
-    [T.ToTensor(),
-     T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
 
 
 def encode_text(m, x):
@@ -172,6 +139,42 @@ def generate(
     default_pos_prompt='best quality, masterpiece, ultra-detailed, UHD 4K, photographic',
     default_neg_prompt='blurry, ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face',
 ):
+    if not DEBUG_VIEW and not SKEP_LOAD:
+        clip_tokenizer = data.CLIPTokenizer(padding='eos')
+        clip = getattr(models, cfg.clip_model)(
+            pretrained=True).eval().requires_grad_(False).textual.to(gpu)
+        autoencoder = sd_v1_vae(
+            pretrained=True).eval().requires_grad_(False).to(gpu)
+    
+        unet = sd_v1_ref_unet(pretrained=True,
+                              version='sd-v1-5_nonema',
+                              enable_encoder=enable_encoder).to(gpu)
+    
+        unet.replace_input_conv()
+        unet = unet.eval().requires_grad_(False).to(gpu)
+        unet.share_cache['num_pairs'] = cfg.num_pairs
+    
+    
+        if LOAD_FLAG:
+            model_weight = torch.load(weight_path, map_location="cpu")
+            msg = unet.load_state_dict(model_weight, strict=True)
+            print(msg)
+    
+        # diffusion
+        sigmas = ops.noise_schedule(schedule=cfg.schedule,
+                                    n=cfg.num_timesteps,
+                                    beta_min=cfg.scale_min,
+                                    beta_max=cfg.scale_max)
+        diffusion = ContextGaussianDiffusion(sigmas=sigmas,
+                                             prediction_type=cfg.prediction_type)
+        diffusion.num_pairs = cfg.num_pairs
+        print("model initialized")
+    
+    face_transforms = Compose(
+        [T.ToTensor(),
+         T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
+    
+    
     solver = 'ddim'
     # solver = cfg.solver
     if default_pos_prompt is not None:
