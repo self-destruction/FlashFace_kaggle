@@ -3,7 +3,6 @@ from flashface.all_finetune.test_script import generate
 import os
 from contextlib import contextmanager
 import argparse
-import uuid
 
 @contextmanager
 def clear_cache_and_gpu():
