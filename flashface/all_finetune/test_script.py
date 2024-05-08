@@ -13,17 +13,17 @@ import torch
 import torch.cuda.amp as amp
 import torch.nn as nn
 import torchvision.transforms as T
-from flashface.all_finetune.conf import cfg
+from flashface.all_finetune.config import cfg
 from PIL import Image, ImageDraw
 
-from models import sd_v1_ref_unet
-from ops.context_diffusion import ContextGaussianDiffusion
+from flashface.all_finetune.models import sd_v1_ref_unet
+from flashface.all_finetune.ops.context_diffusion import ContextGaussianDiffusion
 
 from ldm import data, models, ops
 from ldm.models.vae import sd_v1_vae
 
 import torchvision.transforms as T
-from utils import Compose, PadToSquare, get_padding, seed_everything
+from flashface.all_finetune.utils import Compose, PadToSquare, get_padding, seed_everything
 from ldm.models.retinaface import retinaface, crop_face
 
 # model path
