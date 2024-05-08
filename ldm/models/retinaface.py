@@ -264,7 +264,7 @@ class RetinaFace(nn.Module):
 
         # body, fpn, ssh
         backbone = MobileNetV1() if backbone == 'mobilenetv1' \
-            else resnet50(weights=False)
+            else resnet50(weights=None)
         in_dims, out_dim = self.cfg['in_dims'], self.cfg['out_dim']
         self.body = IntermediateLayerGetter(backbone, self.cfg['layers'])
         self.fpn = FPN(in_dims, out_dim)
